@@ -16,7 +16,7 @@ export function PpgChart({ samples }: { samples: number[] }) {
       if (values.length > 1) {
         const min = Math.min(...values), max = Math.max(...values), span = max-min || 1;
         ctx.beginPath(); values.forEach((v,i) => { const x = w - ((values.length-1-i)*2) - (frame%2); const y = h*.5 - ((v-min)/span-.5)*h*.62; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
-        ctx.lineWidth=2.2; ctx.strokeStyle='#68ff94'; ctx.shadowColor='#38f575'; ctx.shadowBlur=10; ctx.stroke(); ctx.shadowBlur=0;
+        ctx.lineWidth=1.6; ctx.strokeStyle='#73df96'; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0,h*.5); ctx.lineTo(w,h*.5); ctx.strokeStyle='rgba(104,255,148,.10)'; ctx.stroke();
       } else {
         ctx.fillStyle='#63736a'; ctx.font='12px ui-monospace, monospace'; ctx.textAlign='center'; ctx.fillText('ESPERANDO MUESTRAS PPG', w/2,h/2);

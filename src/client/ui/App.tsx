@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import type { Telemetry } from '../../server/modules/telemetry/types';
 import { PpgChart } from './PpgChart';
@@ -19,19 +19,35 @@ export function App() {
     fetch('/api/telemetry/latest').then(r => r.ok ? r.json() : null).then(v => v && setData(v)).catch(() => undefined);
     return () => { socket.off('telemetry', onTelemetry); socket.off('status', onStatus); };
   }, []);
-  const beatStyle = useMemo(() => ({ animationDuration: `${data.bpm && data.bpm > 0 ? 60 / data.bpm : 1}s`, animationPlayState: data.bpm ? 'running' as const : 'paused' as const }), [data.bpm]);
   return <main className="shell">
-    <header className="topbar"><div className="brand"><span className="brand-mark">P</span><span>PULSE<span className="slash"> / </span>MONITOR</span></div><div className="top-right">{data.simulated && <span className="simulation"><i/> SIMULACIÓN</span>}<span className={`connection ${data.connected ? 'live' : ''}`}><i/>{data.connected ? 'DISPOSITIVO EN LÍNEA' : 'SIN SEÑAL'}</span></div></header>
-    <section className="intro"><div><div className="eyebrow">MONITOREO EN TIEMPO REAL <span>·</span> PPG</div><h1>Signos vitales</h1></div><div className="updated"><span>ÚLTIMA MEDICIÓN</span><strong>{time(data.timestamp)}</strong></div></section>
-    <section className="primary-grid">
-      <article className="card heart-card"><div className="card-label">FRECUENCIA CARDÍACA <span className="unit">BPM</span></div><div className="heart-reading"><div className="heart-icon" style={beatStyle}>♥</div><div className="big-number">{data.bpm ?? '—'}</div></div><div className="reading-foot"><span className="pulse-dot"/> PULSO ACTUAL <span className="muted">·</span> {data.bpm ? 'DETECTADO' : 'ESPERANDO DATOS'}</div></article>
-      <article className="card metric-card"><Metric icon="◉" label="SpO₂" value={data.spo2} unit="%" note="SATURACIÓN ESTIMADA"/><div className="metric-divider"/><Metric icon="⌁" label="Temperatura" value={data.temperature} unit="°C" note="AMBIENTE"/><div className="metric-divider"/><Metric icon="◌" label="Humedad" value={data.humidity} unit="%" note="AMBIENTE"/></article>
-    </section>
-    <section className="card waveform-card"><div className="wave-head"><div><div className="card-label">ONDA DE PULSO <span className="wave-live"><i/> EN VIVO</span></div><div className="wave-subtitle">Fotopletismografía · señal óptica del MAX30102</div></div><div className="wave-scale">PPG <span>●</span></div></div><PpgChart samples={data.ppg}/><div className="wave-foot"><span>AMPLITUD RELATIVA</span><span>La señal PPG representa el pulso óptico, no un ECG.</span><span>{data.ppg.length} MUESTRAS</span></div></section>
-    <footer><span>ORANGE PI ZERO 2W <b>·</b> MAX30102 <b>·</b> AHT10</span><span className="footer-status"><i className={data.connected ? 'ok' : ''}/>{data.connected ? 'TRANSMISIÓN ACTIVA' : online ? 'ESPERANDO DISPOSITIVO' : 'RECONECTANDO'}</span></footer>
+    <header className="topbar">
+      <div className="brand">Monitor cardíaco</div>
+      <div className="top-right">
+        {data.simulated && <span className="simulation">Datos simulados</span>}
+        <span className={`connection ${data.connected ? 'live' : ''}`}><i/>{data.connected ? 'Conectado' : online ? 'Esperando dispositivo' : 'Reconectando'}</span>
+      </div>
+    </header>
+    <main>
+      <section className="intro">
+        <div><p className="eyebrow">LECTURA ACTUAL</p><h1>Frecuencia cardíaca</h1></div>
+        <div className="updated"><span>Última medición</span><strong>{time(data.timestamp)}</strong></div>
+      </section>
+      <section className="readings">
+        <article className="bpm-panel"><span className="label">Pulso</span><div className="bpm-value">{data.bpm ?? '—'}<small>{data.bpm === null ? '' : 'bpm'}</small></div></article>
+        <Metric label="SpO₂" value={data.spo2} unit="%"/>
+        <Metric label="Temperatura" value={data.temperature} unit="°C"/>
+        <Metric label="Humedad" value={data.humidity} unit="%"/>
+      </section>
+      <section className="waveform-card">
+        <div className="wave-head"><div><h2>Onda de pulso</h2><p>Señal óptica PPG · MAX30102</p></div><span className="sample-count">{data.ppg.length} muestras</span></div>
+        <PpgChart samples={data.ppg}/>
+        <div className="wave-foot">PPG muestra el pulso óptico; no es una señal ECG.</div>
+      </section>
+    </main>
+    <footer><span>Orange Pi Zero 2W <b>·</b> MAX30102 <b>·</b> AHT10</span><span>Actualización en tiempo real</span></footer>
   </main>;
 }
 
-function Metric({ icon, label, value, unit, note }: { icon: string; label: string; value: number | null; unit: string; note: string }) {
-  return <div className="metric"><div className="metric-title"><span className="metric-icon">{icon}</span><span>{label}</span></div><div className="metric-reading">{value === null ? '—' : value}<small>{value === null ? '' : unit}</small></div><div className="metric-note">{note}</div></div>;
+function Metric({ label, value, unit }: { label: string; value: number | null; unit: string }) {
+  return <article className="metric"><span className="label">{label}</span><div className="metric-reading">{value === null ? '—' : value}<small>{value === null ? '' : unit}</small></div></article>;
 }
