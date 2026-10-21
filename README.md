@@ -42,6 +42,13 @@ Configure en `device/.env` `SERVER_URL`, `DEVICE_TOKEN`, `I2C_BUS`, y si hace fa
 
 El lector MAX30102 configura el FIFO en modo SpO₂ y extrae muestras IR (onda de pulso PPG). BPM y SpO₂ se estiman con detección de picos y una aproximación por razón de señales; la calidad depende del sensor, contacto y movimiento. No es un dispositivo médico. No se envían muestras ECG.
 
+Para ejecutar las pruebas de los drivers sin conectar sensores:
+
+```sh
+cd device
+.venv/bin/python -m unittest -v test_sensors.py
+```
+
 ## Despliegue en Cloud Run
 
 Cloud Run requiere un proyecto con facturación y APIs de Cloud Run y Artifact Registry habilitadas, `gcloud` autenticado y Docker disponible. El monolito sirve frontend, API y WebSockets por el puerto `PORT` que asigna Cloud Run. Para conservar el estado en memoria, limite el servicio a una instancia (los reinicios eliminan los datos):

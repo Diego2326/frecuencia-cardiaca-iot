@@ -30,7 +30,6 @@ class MAX30102:
         self.write(0x04, 0); self.write(0x05, 0); self.write(0x06, 0)
     def write(self, reg, value): self.bus.write_byte_data(MAX_ADDR, reg, value)
     def read_samples(self):
-        self.write(0x04, 0); self.write(0x06, 0)
         count = (self.bus.read_byte_data(MAX_ADDR, 0x04) - self.bus.read_byte_data(MAX_ADDR, 0x06)) & 0x1F
         result = []
         for _ in range(min(count, 32)):
