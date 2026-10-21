@@ -19,7 +19,7 @@ export function App() {
     fetch('/api/telemetry/latest').then(r => r.ok ? r.json() : null).then(v => v && setData(v)).catch(() => undefined);
     return () => { socket.off('telemetry', onTelemetry); socket.off('status', onStatus); };
   }, []);
-  const beatStyle = useMemo(() => ({ animationDuration: `${data.bpm && data.bpm > 0 ? 60 / data.bpm : 1}s` }), [data.bpm]);
+  const beatStyle = useMemo(() => ({ animationDuration: `${data.bpm && data.bpm > 0 ? 60 / data.bpm : 1}s`, animationPlayState: data.bpm ? 'running' as const : 'paused' as const }), [data.bpm]);
   return <main className="shell">
     <header className="topbar"><div className="brand"><span className="brand-mark">P</span><span>PULSE<span className="slash"> / </span>MONITOR</span></div><div className="top-right">{data.simulated && <span className="simulation"><i/> SIMULACIÓN</span>}<span className={`connection ${data.connected ? 'live' : ''}`}><i/>{data.connected ? 'DISPOSITIVO EN LÍNEA' : 'SIN SEÑAL'}</span></div></header>
     <section className="intro"><div><div className="eyebrow">MONITOREO EN TIEMPO REAL <span>·</span> PPG</div><h1>Signos vitales</h1></div><div className="updated"><span>ÚLTIMA MEDICIÓN</span><strong>{time(data.timestamp)}</strong></div></section>

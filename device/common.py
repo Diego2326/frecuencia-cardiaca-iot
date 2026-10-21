@@ -2,6 +2,10 @@
 import os
 import time
 import requests
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).with_name(".env"))
 
 SERVER_URL = os.getenv("SERVER_URL", "https://localhost:8080").rstrip("/")
 DEVICE_TOKEN = os.getenv("DEVICE_TOKEN", "")

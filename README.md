@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-La web queda en `http://localhost:5173`; Express y Socket.IO escuchan en el puerto 8080. Para que el simulador acepte el HTTP local sin TLS configure `SERVER_URL=http://localhost:8080` en `device/.env` (el token debe coincidir con `.env`):
+La web queda en `http://localhost:5173`; Express y Socket.IO escuchan en el puerto 8080. El archivo `device/.env.example` ya apunta al servicio Cloud Run desplegado. Copie ese archivo a `device/.env`, coloque el mismo token configurado en Cloud Run y ejecute el simulador. Para probar localmente con HTTP sin TLS, cambie `SERVER_URL=http://localhost:8080` en ese archivo (el token debe coincidir con `.env`):
 
 ```sh
 cd device
