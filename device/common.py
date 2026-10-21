@@ -47,22 +47,62 @@ def make_oled():
         print(f"OLED unavailable: {exc}", flush=True)
         return None
 
-def render_oled_frame(bpm, spo2, samples):
+def render_oled_frame(bpm, spo2, samples, temperature=None, humidity=None):
     """Render the exact 128×64 monochrome frame used by the physical OLED."""
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw, ImageFont
     image = Image.new("1", (128, 64)); draw = ImageDraw.Draw(image)
-    draw.text((2, 1), f"BPM {int(bpm) if bpm is not None else '--'}", fill=255)
-    draw.text((69, 1), f"SpO2 {int(spo2) if spo2 is not None else '--'}", fill=255)
-    draw.line((0, 15, 127, 15), fill=255)
+    small = ImageFont.load_default(size=8)
+    draw.text((1, 2), "BPM", fill=255, font=small)
+    draw_bitmap_value(draw, 21, 0, str(int(bpm)) if bpm is not None else "--", 2)
+    draw.text((57, 2), "SpO2", fill=255, font=small)
+    spo2_end = draw_bitmap_value(draw, 85, 0, str(int(spo2)) if spo2 is not None else "--", 2)
+    draw.text((spo2_end + 1, 2), "%", fill=255, font=small)
+    draw.text((2, 16), "T", fill=255, font=small)
+    temp_value = f"{temperature:.1f}" if temperature is not None else "--.-"
+    temp_end = draw_bitmap_value(draw, 10, 17, temp_value, 1)
+    draw.text((temp_end, 16), "C", fill=255, font=small)
+    draw.text((68, 16), "H", fill=255, font=small)
+    humidity_end = draw_bitmap_value(draw, 77, 17, str(round(humidity)) if humidity is not None else "--", 1)
+    draw.text((humidity_end + 1, 16), "%", fill=255, font=small)
+    draw.line((0, 28, 127, 28), fill=255)
     values = samples[-64:]
     if len(values) > 1:
         low, high = min(values), max(values); span = max(high-low, 1)
-        points = [(int(i*127/(len(values)-1)), int(57-(v-low)*37/span)) for i,v in enumerate(values)]
+        points = [(int(i*127/(len(values)-1)), int(62-(v-low)*30/span)) for i,v in enumerate(values)]
         draw.line(points, fill=255, width=1)
     else:
-        draw.text((19, 35), "Esperando PPG", fill=255)
+        draw.text((19, 42), "Esperando PPG", fill=255, font=small)
     return image
 
-def draw_oled(device, bpm, spo2, samples):
+def draw_bitmap_value(draw, x, y, value, scale):
+    """Draw numeric readings with a compact, crisp 5×7 pixel font."""
+    glyphs = {
+        "0": ("01110", "10001", "10011", "10101", "11001", "10001", "01110"),
+        "1": ("00100", "01100", "00100", "00100", "00100", "00100", "01110"),
+        "2": ("01110", "10001", "00001", "00010", "00100", "01000", "11111"),
+        "3": ("11110", "00001", "00001", "01110", "00001", "00001", "11110"),
+        "4": ("00010", "00110", "01010", "10010", "11111", "00010", "00010"),
+        "5": ("11111", "10000", "10000", "11110", "00001", "00001", "11110"),
+        "6": ("01110", "10000", "10000", "11110", "10001", "10001", "01110"),
+        "7": ("11111", "00001", "00010", "00100", "01000", "01000", "01000"),
+        "8": ("01110", "10001", "10001", "01110", "10001", "10001", "01110"),
+        "9": ("01110", "10001", "10001", "01111", "00001", "00001", "01110"),
+        "-": ("00000", "00000", "00000", "11111", "00000", "00000", "00000"),
+    }
+    cursor = x
+    for char in value:
+        if char in glyphs:
+            for row, pattern in enumerate(glyphs[char]):
+                for column, pixel in enumerate(pattern):
+                    if pixel == "1":
+                        left, top = cursor + column * scale, y + row * scale
+                        draw.rectangle((left, top, left + scale - 1, top + scale - 1), fill=255)
+            cursor += 5 * scale + scale
+        elif char == ".":
+            draw.rectangle((cursor, y + 6 * scale, cursor + scale - 1, y + 7 * scale - 1), fill=255)
+            cursor += 2 * scale
+    return cursor
+
+def draw_oled(device, bpm, spo2, samples, temperature=None, humidity=None):
     if device is not None:
-        device.display(render_oled_frame(bpm, spo2, samples))
+        device.display(render_oled_frame(bpm, spo2, samples, temperature, humidity))

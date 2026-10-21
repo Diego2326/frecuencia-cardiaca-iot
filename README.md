@@ -38,7 +38,7 @@ Active I²C en Armbian, conecte SDA/SCL/GND y alimente módulos a 3.3 V. Comprue
 python sensors.py
 ```
 
-Configure en `device/.env` `SERVER_URL`, `DEVICE_TOKEN`, `I2C_BUS`, y si hace falta las direcciones. Defina `OLED_DRIVER=ssd1306` o `OLED_DRIVER=sh1106`. El controlador no se puede identificar con fiabilidad mediante una lectura I²C genérica; `auto` selecciona SSD1306, que es el valor frecuente. Si la pantalla queda en blanco o desplazada, pruebe SH1106. El OLED muestra BPM, SpO₂ y la ventana de onda PPG.
+Configure en `device/.env` `SERVER_URL`, `DEVICE_TOKEN`, `I2C_BUS`, y si hace falta las direcciones. Defina `OLED_DRIVER=ssd1306` o `OLED_DRIVER=sh1106`. El controlador no se puede identificar con fiabilidad mediante una lectura I²C genérica; `auto` selecciona SSD1306, que es el valor frecuente. Si la pantalla queda en blanco o desplazada, pruebe SH1106. El OLED muestra BPM, SpO₂, temperatura, humedad y la ventana de onda PPG.
 
 El lector MAX30102 configura el FIFO en modo SpO₂ y extrae muestras IR (onda de pulso PPG). BPM y SpO₂ se estiman con detección de picos y una aproximación por razón de señales; la calidad depende del sensor, contacto y movimiento. No es un dispositivo médico. No se envían muestras ECG.
 

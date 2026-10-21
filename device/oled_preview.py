@@ -38,7 +38,8 @@ class PreviewHandler(SimpleHTTPRequestHandler):
             )
             response.raise_for_status()
             data = response.json()
-            frame = render_oled_frame(data.get("bpm"), data.get("spo2"), data.get("ppg", []))
+            frame = render_oled_frame(data.get("bpm"), data.get("spo2"), data.get("ppg", []),
+                                      data.get("temperature"), data.get("humidity"))
             image = BytesIO()
             frame.save(image, format="PNG")
             payload = image.getvalue()

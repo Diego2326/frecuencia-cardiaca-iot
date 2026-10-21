@@ -70,7 +70,7 @@ def main():
             try: temperature, humidity = aht.read()
             except OSError as exc: print(f"AHT10 read failed: {exc}", flush=True)
             packet = {"timestamp": datetime.now(timezone.utc).isoformat(), "bpm": bpm, "spo2": spo2, "temperature": temperature, "humidity": humidity, "ppg": list(ppg_window), "simulated": False}
-            sender.send(packet); draw_oled(oled, bpm, spo2, list(ppg_window))
+            sender.send(packet); draw_oled(oled, bpm, spo2, list(ppg_window), temperature, humidity)
             time.sleep(max(0, SEND_INTERVAL-(time.monotonic()-started)))
 
 if __name__ == "__main__": main()

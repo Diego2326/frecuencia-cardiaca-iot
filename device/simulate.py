@@ -18,7 +18,7 @@ def main():
             notch = 0.08 * math.exp(-((phase - 0.48) / 0.035) ** 2)
             ppg.append(round(50000 + 12000 * (primary + decay + notch) + random.gauss(0, 110)))
         packet = {"timestamp": datetime.now(timezone.utc).isoformat(), "bpm": round(bpm), "spo2": round(random.uniform(96, 99), 1), "temperature": round(random.uniform(22, 25), 1), "humidity": round(random.uniform(42, 55), 1), "ppg": ppg, "simulated": True}
-        sender.send(packet); draw_oled(oled, packet["bpm"], packet["spo2"], ppg)
+        sender.send(packet); draw_oled(oled, packet["bpm"], packet["spo2"], ppg, packet["temperature"], packet["humidity"])
         time.sleep(SEND_INTERVAL)
 
 if __name__ == "__main__": main()
