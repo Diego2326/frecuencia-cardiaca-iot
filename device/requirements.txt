@@ -1,0 +1,5 @@
+requests>=2.32,<3
+smbus2>=0.5,<1
+Pillow>=10,<12
+luma.core>=2.4,<3
+luma.oled>=3.13,<4

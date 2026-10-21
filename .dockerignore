@@ -1,0 +1,6 @@
+node_modules
+dist
+.git
+.env
+device/.venv
+device/__pycache__
