@@ -49,6 +49,14 @@ cd device
 .venv/bin/python -m unittest -v test_sensors.py
 ```
 
+Para abrir una vista ampliada y actualizada del fotograma exacto de la OLED (usa la lectura actual de Cloud Run):
+
+```sh
+device/.venv/bin/python device/oled_preview.py
+```
+
+El comando abre `http://127.0.0.1:8765/oled_preview.html` en el navegador. Comparte `render_oled_frame` con el controlador físico, por lo que ambos usan la misma distribución de píxeles. Detenga el servidor con `Ctrl+C`.
+
 ## Despliegue en Cloud Run
 
 Cloud Run requiere un proyecto con facturación y APIs de Cloud Run y Artifact Registry habilitadas, `gcloud` autenticado y Docker disponible. El monolito sirve frontend, API y WebSockets por el puerto `PORT` que asigna Cloud Run. Para conservar el estado en memoria, limite el servicio a una instancia (los reinicios eliminan los datos):

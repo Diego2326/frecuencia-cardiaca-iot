@@ -47,8 +47,8 @@ def make_oled():
         print(f"OLED unavailable: {exc}", flush=True)
         return None
 
-def draw_oled(device, bpm, spo2, samples):
-    if device is None: return
+def render_oled_frame(bpm, spo2, samples):
+    """Render the exact 128×64 monochrome frame used by the physical OLED."""
     from PIL import Image, ImageDraw
     image = Image.new("1", (128, 64)); draw = ImageDraw.Draw(image)
     draw.text((2, 1), f"BPM {int(bpm) if bpm is not None else '--'}", fill=255)
@@ -61,4 +61,8 @@ def draw_oled(device, bpm, spo2, samples):
         draw.line(points, fill=255, width=1)
     else:
         draw.text((19, 35), "Esperando PPG", fill=255)
-    device.display(image)
+    return image
+
+def draw_oled(device, bpm, spo2, samples):
+    if device is not None:
+        device.display(render_oled_frame(bpm, spo2, samples))

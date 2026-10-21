@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vista previa OLED 128×64</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #151816; color: #e4e9e5; font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(100% - 32px, 620px); }
+    h1 { margin: 0 0 8px; font-size: 18px; font-weight: 550; }
+    p { margin: 0; color: #a6b0a9; font-size: 13px; }
+    figure { margin: 26px 0 13px; padding: 24px; border: 1px solid #3b433e; border-radius: 10px; background: #222724; box-shadow: 0 18px 55px #0005; }
+    img { display: block; width: min(100%, 512px); height: auto; aspect-ratio: 2 / 1; margin: auto; background: #000; image-rendering: pixelated; }
+    footer { display: flex; justify-content: space-between; gap: 12px; color: #9ca69f; font-size: 12px; }
+    #state { color: #8ce4a7; }
+    @media (max-width: 460px) { figure { padding: 12px; } footer { font-size: 11px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pantalla OLED · 128 × 64 px</h1>
+    <p>Vista ampliada del mismo fotograma que dibuja el dispositivo.</p>
+    <figure><img id="screen" alt="Vista previa monocroma de la pantalla OLED"></figure>
+    <footer><span>MAX30102 · BPM · SpO₂ · onda PPG</span><span id="state">Conectando…</span></footer>
+  </main>
+  <script>
+    const screen = document.querySelector('#screen');
+    const state = document.querySelector('#state');
+    async function refresh() {
+      try {
+        const response = await fetch(`/frame.png?t=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        screen.src = URL.createObjectURL(await response.blob());
+        state.textContent = 'Actualizado';
+      } catch (error) {
+        state.textContent = 'Sin conexión';
+      }
+    }
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
